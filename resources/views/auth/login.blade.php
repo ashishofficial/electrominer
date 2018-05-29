@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="{{ asset('backend/css/main.css') }}" rel="stylesheet">
     <style>
-        #error,#fgError 
+        #error,#fgError,#rgErrorName,#rgErrorEmail,#rgErrorPassword,#rgErrorCpassword 
         {
             border: 1px solid red;
             padding: 5px;
@@ -29,9 +29,6 @@
     </style>
 </head>
 <body>
-<div id="divLoading" style="margin: 0px; padding: 0px; position: fixed; right: 0px; top: 0px; width: 100%; height: 100%; background-color: rgb(102, 102, 102); z-index: 30001; opacity: 0.8;display:none;">
-    <p style="position: absolute; color: White; top: 40%; left: 45%;"><img src="https://mir-s3-cdn-cf.behance.net/project_modules/disp/09b24e31234507.564a1d23c07b4.gif" height="100px"></p>
-</div>
     <div class="form_custom_section">
         <div class="heading_section">
         <h2>Dashboard Login Form</h2>
@@ -58,10 +55,9 @@
             </div>
             <div class="container" style="background-color:#f1f1f1">
                 <button type="button" onclick="document.getElementById('id01').style.display='none'" class="cancelbtn">Cancel</button>
-                <button type="button" style="float:right;" onclick="document.getElementById('myModal').style.display='block'" class="cancelbtn btn-info" id="fgbtn">Forgot Password ?</button>
-                
+                <button type="button" style="float:right;" onclick="document.getElementById('myModal').style.display='block'" class="cancelbtn btn-info" id="fgbtn">Forgot Password ? </button>
+                <button type="button" style="margin-left: 68%;" onclick="document.getElementById('').style.display='block'" class="cancelbtn btn-info" id="rgbtn">Register&nbsp;</button>
             </div>
-            
         </form>
         <!-- forgot password form -->
         <div id="fg" class="modal">
@@ -83,19 +79,39 @@
         </form>
         </div>
     </div>
+    <div id="rg" class="modal">
+        <form class="modal-content animate" method="POST" action="{{ route('register') }}" id="registerform">
+            @csrf
+            <div class="imgcontainer">
+            <span onclick="document.getElementById('rg').style.display='none'" class="close" title="Close Modal">&times;</span>
+            </div>
+            <div class="container">
+                <label for="name"><b>Name</b></label>
+                <input type="text" placeholder="name" name="name" value="{{ old('name') }}" required>
+                <div id="rgErrorName">
+                </div>
+                <label for="email"><b>Email</b></label>
+                <input type="email" placeholder="email" name="email" value="{{ old('email') }}" required>   
+                <div id="rgErrorEmail">
+                </div>
+                <label for="password"><b>Password</b></label>
+                <input type="password" placeholder="password" name="password" value="{{ old('password') }}" required>
+                <div id="rgErrorPassword">
+                </div> 
+                <label for="password-confirm"><b>Confirm Password</b></label>
+                <input type="password" placeholder="password" id="password-confirm"name="password_confirmation" value="{{ old('password_confirmation') }}" required>  
+                <button type="submit">Register</button>      
+                <div id="rgErrorCpassword">
+                </div>
+            </div>
+            <div class="container" style="background-color:#f1f1f1">
+                <button type="button" onclick="document.getElementById('rg').style.display='none'" class="cancelbtn">Cancel</button>
+            </div>
+        </form>
+        </div>
+    </div>
     <script src="{{ asset('backend/js/jquery-3.3.1.min.js') }}"></script>
     <script>
-    // ajax loader display
-
-    $(document).ajaxStart(function(){
-    $("#divLoading").css("display", "block");
-    });
-
-    $(document).ajaxComplete(function(){
-        $("#divLoading").css("display", "none");
-    });
-
-
     // Get the modal
     var modal = document.getElementById('id01');
     // When the user clicks anywhere outside of the modal, close it
@@ -104,7 +120,6 @@
             modal.style.display = "none";
         }
     }
-    
     $(document).ready(function(){
         var loginForm = $("#loginForm");
         loginForm.submit(function(e){
@@ -116,7 +131,6 @@
                 type:'POST',
                 data:formData,
                 success:function(done){
-                    alert('Please check your email for new password');
                     window.location.replace("{{ route('dashboard') }}");
                 },
                 error: function (xhr) {
@@ -126,6 +140,9 @@
         });
         $('#fgbtn').click(function(){
         $('#fg').css('display','block');
+    });
+        $('#rgbtn').click(function(){
+        $('#rg').css('display','block');
     });
     // forgot password
     var forgotForm = $("#forgotForm");
@@ -148,8 +165,44 @@
                 }
             });
         });
+        //Register form
+        var registerform = $("#registerform");
+        registerform.submit(function(e){
+        e.preventDefault();
+        var formRgData = registerform.serialize();
+       console.log(formRgData);
+            $.ajax({
+                url:"{{ URL::to('register-user') }}",
+                dataType:'json',
+                type:'POST',
+                data:formRgData,
+                success:function(complete){
+                    window.location.replace("{{ route('login') }}");
+                },
+                error: function (err) {
+                    try{
+                        $('#rgErrorEmail').hide().html(err.responseJSON[0]['email'][0]).slideDown();
+                    }catch {
+                        $('#rgErrorEmail').hide().html(err.responseJSON[0]['email'][0]).slideUp();
+                    }
+                    try{
+                        $('#rgErrorName').hide().html(err.responseJSON[0]['name'][0]).slideDown();
+                    }catch {
+                        $('#rgErrorName').hide().html(err.responseJSON[0]['name'][0]).slideUp();
+                    }
+                    try{
+                        $('#rgErrorPassword').hide().html(err.responseJSON[0]['password'][0]).slideDown();
+                    }catch {
+                        $('#rgErrorPassword').hide().html(err.responseJSON[0]['password'][0]).slideUp();
+                    }
+                }
+            });
+        });
         $('#fgbtn').click(function(){
-        $('#fg').css('display','block');
+            $('#fg').css('display','block');
+    });
+         $('#rgbtn').click(function(){
+            $('#rg').css('display','block');
     });
     });
     </script>

@@ -16,3 +16,4 @@ Route::get('/', function () {
 });
 Auth::routes();
 Route::get('admin/dashboard', 'Admin\DashboardController@index')->name('dashboard');
+Route::resource('/register-user','UserController');
